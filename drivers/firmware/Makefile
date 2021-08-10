@@ -38,4 +38,5 @@ obj-y				+= psci/
 obj-y				+= smccc/
 obj-y				+= tegra/
 obj-y				+= xilinx/
+obj-y				+= thead/
 obj-$(CONFIG_UDFI)		+= uvb/
