@@ -279,4 +279,12 @@ void hmat_restore_target(int nid);
 static inline void hmat_restore_target(int nid) {}
 #endif
 
+/*--------------------------------------------------------------------------
+		ACPI _CRS CSI-2 and MIPI DisCo for Imaging
+  -------------------------------------------------------------------------- */
+
+void acpi_mipi_check_crs_csi2(acpi_handle handle);
+void acpi_mipi_scan_crs_csi2(void);
+void acpi_mipi_crs_csi2_cleanup(void);
+
 #endif /* _ACPI_INTERNAL_H_ */
