@@ -32,6 +32,7 @@ enum sbi_ext_id {
 	SBI_EXT_SUSP = 0x53555350,
 	SBI_EXT_PMU = 0x504D55,
 	SBI_EXT_DBCN = 0x4442434E,
+	SBI_EXT_STA = 0x535441,
 
 	/* Experimentals extensions must lie within this range */
 	SBI_EXT_EXPERIMENTAL_START = 0x08000000,
@@ -86,6 +87,21 @@ enum sbi_hsm_hart_state {
 	SBI_HSM_STATE_SUSPEND_PENDING,
 	SBI_HSM_STATE_RESUME_PENDING,
 };
+
+/* SBI STA (steal-time accounting) extension */
+enum sbi_ext_sta_fid {
+	SBI_EXT_STA_STEAL_TIME_SET_SHMEM = 0,
+};
+
+struct sbi_sta_struct {
+	__le32 sequence;
+	__le32 flags;
+	__le64 steal;
+	u8 preempted;
+	u8 pad[47];
+} __packed;
+
+#define SBI_STA_SHMEM_DISABLE		-1
 
 #define SBI_HSM_SUSP_BASE_MASK			0x7fffffff
 #define SBI_HSM_SUSP_NON_RET_BIT		0x80000000
