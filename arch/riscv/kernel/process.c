@@ -159,7 +159,7 @@ void arch_release_task_struct(struct task_struct *tsk)
 {
 	/* Free the vector context of datap. */
 	if (has_vector())
-		kfree(tsk->thread.vstate.datap);
+		riscv_v_thread_free(tsk);
 }
 
 int arch_dup_task_struct(struct task_struct *dst, struct task_struct *src)
@@ -210,3 +210,7 @@ int copy_thread(struct task_struct *p, const struct kernel_clone_args *args)
 
 EXPORT_SYMBOL_GPL(__fstate_save);
 EXPORT_SYMBOL_GPL(__fstate_restore);
+void __init arch_task_cache_init(void)
+{
+	riscv_v_setup_ctx_cache();
+}
