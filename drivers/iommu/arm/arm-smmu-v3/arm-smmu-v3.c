@@ -3924,7 +3924,8 @@ static int arm_smmu_clear_dirty_log(struct iommu_domain *domain,
 }
 #endif
 
-static int arm_smmu_of_xlate(struct device *dev, struct of_phandle_args *args)
+static int arm_smmu_of_xlate(struct device *dev,
+			     const struct of_phandle_args *args)
 {
 	return iommu_fwspec_add_ids(dev, args->args, 1);
 }
