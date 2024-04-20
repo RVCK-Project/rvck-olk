@@ -89,21 +89,6 @@ enum sbi_hsm_hart_state {
 	SBI_HSM_STATE_RESUME_PENDING,
 };
 
-/* SBI STA (steal-time accounting) extension */
-enum sbi_ext_sta_fid {
-	SBI_EXT_STA_STEAL_TIME_SET_SHMEM = 0,
-};
-
-struct sbi_sta_struct {
-	__le32 sequence;
-	__le32 flags;
-	__le64 steal;
-	u8 preempted;
-	u8 pad[47];
-} __packed;
-
-#define SBI_STA_SHMEM_DISABLE		-1
-
 #define SBI_HSM_SUSP_BASE_MASK			0x7fffffff
 #define SBI_HSM_SUSP_NON_RET_BIT		0x80000000
 #define SBI_HSM_SUSP_PLAT_BASE			0x10000000
@@ -340,6 +325,23 @@ enum sbi_sse_attr_id {
 #define SBI_SSE_EVENT_PLATFORM		BIT(14)
 #define SBI_SSE_EVENT_GLOBAL		BIT(15)
 
+
+/* SBI STA (steal-time accounting) extension */
+enum sbi_ext_sta_fid {
+	SBI_EXT_STA_STEAL_TIME_SET_SHMEM = 0,
+};
+
+struct sbi_sta_struct {
+	__le32 sequence;
+	__le32 flags;
+	__le64 steal;
+	u8 preempted;
+	u8 pad[47];
+} __packed;
+
+#define SBI_SHMEM_DISABLE		-1
+
+/* SBI spec version fields */
 #define SBI_SPEC_VERSION_DEFAULT	0x1
 #define SBI_SPEC_VERSION_MAJOR_SHIFT	24
 #define SBI_SPEC_VERSION_MAJOR_MASK	0x7f
