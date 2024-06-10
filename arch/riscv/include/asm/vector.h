@@ -42,6 +42,11 @@ static __always_inline bool has_vector(void)
 	  riscv_has_extension_unlikely(RISCV_ISA_EXT_XTHEADVECTOR);
 }
 
+static __always_inline bool has_xtheadvector(void)
+{
+        return riscv_has_extension_unlikely(RISCV_ISA_EXT_XTHEADVECTOR);
+}
+
 static inline void __riscv_v_vstate_clean(struct pt_regs *regs)
 {
 	regs->status = (regs->status & ~SR_VS) | SR_VS_CLEAN;
