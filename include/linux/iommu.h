@@ -1248,7 +1248,6 @@ extern struct iommu_group *generic_single_device_group(struct device *dev);
 
 /**
  * struct iommu_fwspec - per-device IOMMU instance data
- * @ops: ops for this device's IOMMU
  * @iommu_fwnode: firmware handle for this device's IOMMU
  * @flags: IOMMU_FWSPEC_* flags
  * @num_ids: number of associated device IDs
@@ -1259,7 +1258,6 @@ extern struct iommu_group *generic_single_device_group(struct device *dev);
  * consumers.
  */
 struct iommu_fwspec {
-	const struct iommu_ops	*ops;
 	struct fwnode_handle	*iommu_fwnode;
 
 	KABI_RESERVE(1)
