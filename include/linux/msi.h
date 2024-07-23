@@ -593,9 +593,11 @@ enum {
 	MSI_FLAG_MSIX_CONTIGUOUS	= (1 << 19),
 	/* PCI/MSI-X vectors can be dynamically allocated/freed post MSI-X enable */
 	MSI_FLAG_PCI_MSIX_ALLOC_DYN	= (1 << 20),
+	/* PCI MSIs cannot be steered separately to CPU cores */
+	MSI_FLAG_NO_AFFINITY		= (1 << 21),
 	/* Support for PCI/IMS */
-	MSI_FLAG_PCI_IMS		= (1 << 21),
-	KABI_EXTEND_ENUM(MSI_FLAG_UB_INTR = (1 << 22))
+	MSI_FLAG_PCI_IMS		= (1 << 22),
+	KABI_EXTEND_ENUM(MSI_FLAG_UB_INTR = (1 << 23))
 };
 
 /**
