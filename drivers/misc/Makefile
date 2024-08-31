@@ -70,3 +70,4 @@ obj-$(CONFIG_TMR_INJECT)	+= xilinx_tmr_inject.o
 obj-$(CONFIG_TPS6594_ESM)	+= tps6594-esm.o
 obj-$(CONFIG_TPS6594_PFSM)	+= tps6594-pfsm.o
 obj-$(CONFIG_PAGEATTACH)	+= zcopy/
+obj-$(CONFIG_TH1520_DSMART_CARD)	+= dsmart_card.o
