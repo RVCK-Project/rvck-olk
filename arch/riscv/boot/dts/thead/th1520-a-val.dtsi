@@ -2159,6 +2159,15 @@
 			slew-rate = <0>;
 		};
 	};
+	i2s1_pa_pins: i2s1-pa-0 {
+		i2s-pa-pins {
+			pins = "AUDIO_PA14", "AUDIO_PA15", "AUDIO_PA17";
+			function = "audio";
+			bias-disable;
+			drive-strength = <0>;
+			slew-rate = <0>;
+		};
+	};
 	i2s_8ch_bus_pa_pins: i2s-8ch-bus-pa-0 {
 		i2s-pa-pins {
 			pins = "AUDIO_PA2", "AUDIO_PA3", "AUDIO_PA8";
@@ -2201,6 +2210,153 @@
 			function = "audio";
 			bias-disable;
 			drive-strength = <0>;
+			slew-rate = <0>;
+		};
+	};
+};
+
+&padctrl_audiosys {
+	aud_i2c0_pins: aud-i2c0-0 {
+		i2c-pins {
+			pins = "PA6_FUNC", "PA7_FUNC";
+			function = "aud_i2c0";
+			bias-disable;
+			drive-strength = <7>;
+			input-schmitt-disable;
+			slew-rate = <0>;
+		};
+	};
+	aud_i2c1_pins: aud-i2c1-0 {
+		i2c-pins {
+			pins = "PA13_FUNC", "PA16_FUNC";
+			function = "aud_i2c1";
+			bias-disable;
+			drive-strength = <7>;
+			input-schmitt-disable;
+			slew-rate = <0>;
+		};
+	};
+	i2s0_pins: i2s0-0 {
+		i2s-pins {
+			pins = "PA9_FUNC", "PA10_FUNC", "PA11_FUNC", "PA12_FUNC";
+			function = "aud_i2s0";
+			bias-disable;
+			drive-strength = <13>;
+			input-schmitt-disable;
+			slew-rate = <0>;
+		};
+	};
+	i2s1_pins: i2s1-0 {
+		i2s-pins {
+			pins = "PA14_FUNC", "PA15_FUNC", "PA17_FUNC";
+			function = "aud_i2s1";
+			bias-disable;
+			drive-strength = <13>;
+			input-schmitt-disable;
+			slew-rate = <0>;
+		};
+	};
+	i2s_8ch_bus_pins: i2s-8ch-bus-0 {
+		i2s-pins {
+			pins = "PA2_FUNC", "PA3_FUNC", "PA8_FUNC";
+			function = "aud_i2s_8ch";
+			bias-disable;
+			drive-strength = <13>;
+			input-schmitt-disable;
+			slew-rate = <0>;
+		};
+	};
+	i2s_8ch_sd0_pins: i2s-8ch-sd0-0 {
+		i2s-pins {
+			pins = "PA4_FUNC";
+			function = "aud_i2s_8ch";
+			bias-disable;
+			drive-strength = <13>;
+			input-schmitt-disable;
+			slew-rate = <0>;
+		};
+	};
+	i2s_8ch_sd1_pins: i2s-8ch-sd1-0 {
+		i2s-pins {
+			pins = "PA5_FUNC";
+			function = "aud_i2s_8ch";
+			bias-disable;
+			drive-strength = <13>;
+			input-schmitt-disable;
+			slew-rate = <0>;
+		};
+	};
+	i2s_8ch_sd2_pins: i2s-8ch-sd2-0 {
+		i2s-pins {
+			pins = "PA0_FUNC";
+			function = "aud_i2s_8ch";
+			bias-disable;
+			drive-strength = <13>;
+			input-schmitt-disable;
+			slew-rate = <0>;
+		};
+	};
+	i2s_8ch_sd3_pins: i2s-8ch-sd3-0 {
+		i2s-pins {
+			pins = "PA1_FUNC";
+			function = "aud_i2s_8ch";
+			bias-disable;
+			drive-strength = <13>;
+			input-schmitt-disable;
+			slew-rate = <0>;
+		};
+	};
+	tdm_pins: tdm-0 {
+		clk-pins {
+			pins = "PA27_FUNC", "PA28_FUNC";
+			function = "aud_tdm";
+			bias-disable;
+			drive-strength = <12>;
+			input-schmitt-disable;
+			slew-rate = <0>;
+		};
+		data-pins {
+			pins = "PA29_FUNC";
+			function = "aud_tdm";
+			bias-disable;
+			drive-strength = <0>;
+			input-schmitt-disable;
+			slew-rate = <0>;
+		};
+	};
+	spdif0_pins: spdif0-0 {
+		rx-pins {
+			pins = "PA21_FUNC";
+			function = "aud_spdif";
+			bias-disable;
+			drive-strength = <12>;
+			input-schmitt-disable;
+			slew-rate = <0>;
+		};
+		tx-pins {
+			pins = "PA22_FUNC";
+			function = "aud_spdif";
+			bias-disable;
+			drive-strength = <0>;
+			input-schmitt-disable;
+			slew-rate = <0>;
+		};
+	};
+	spdif1_pins: spdif1-0 {
+		tx-pins {
+			pins = "PA23_FUNC";
+			function = "aud_spdif";
+			bias-disable;
+			drive-strength = <12>;
+			input-schmitt-disable;
+			slew-rate = <0>;
+		};
+		rx-pins {
+			pins = "PA24_FUNC";
+			function = "aud_spdif";
+			bias-disable;
+			drive-strength = <0>;
+			input-schmitt-disable;
 			slew-rate = <0>;
 		};
 	};
