@@ -8,11 +8,6 @@ config TH1520_REBOOTMODE
 	help
 	 This driver supports check rebootmode feature in TH1520 FM platform
 
-source "drivers/soc/xuantie/nna/Kconfig"
-source "drivers/soc/xuantie/vpu-vc8000d-kernel/Kconfig"
-source "drivers/soc/xuantie/vpu-vc8000e-kernel/Kconfig"
-source "drivers/soc/xuantie/video_memory/Kconfig"
-
 config TH1520_SYSTEM_MONITOR
 	bool "Xuantie th1520 system monitor"
 	default y
@@ -31,4 +26,9 @@ config TH1520_IOPMP
 	default y
 	help
 	  This driver supports TH1520 IOPMP built-in for security system
+
+source "drivers/soc/xuantie/nna/Kconfig"
+source "drivers/soc/xuantie/vpu-vc8000d-kernel/Kconfig"
+source "drivers/soc/xuantie/vpu-vc8000e-kernel/Kconfig"
+source "drivers/soc/xuantie/video_memory/Kconfig"
 endmenu
