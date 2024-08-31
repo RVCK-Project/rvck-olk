@@ -3050,7 +3050,6 @@
        non-removable;
        no-sdio;
        no-sd;
-       wprtn_ignore;
        status = "okay";
 };
 
@@ -3059,6 +3058,7 @@
        pinctrl-0 = <&sdio0_pins>;
        bus-width = <4>;
        max-frequency = <198000000>;
+       wprtn_ignore;
        status = "okay";
 };
 
