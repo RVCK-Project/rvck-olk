@@ -511,6 +511,10 @@ config VIRT_PLAT_DEV
           which created for the Qemu emulated device to implement virtual MSI
           direct injection.
 
+config USBEN
+	tristate "TVI1432V project usb enable item"
+	default n
+
 config OPEN_DICE
 	tristate "Open Profile for DICE driver"
 	depends on OF_RESERVED_MEM
@@ -611,6 +615,7 @@ source "drivers/misc/ocxl/Kconfig"
 source "drivers/misc/bcm-vk/Kconfig"
 source "drivers/misc/cardreader/Kconfig"
 source "drivers/misc/uacce/Kconfig"
+source "drivers/misc/hc32fx/Kconfig"
 source "drivers/misc/pvpanic/Kconfig"
 source "drivers/misc/mchp_pci1xxxx/Kconfig"
 source "drivers/misc/zcopy/Kconfig"
