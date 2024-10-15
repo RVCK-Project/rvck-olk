@@ -36,6 +36,7 @@ config KVM
 	select PREEMPT_NOTIFIERS
 	select SCHED_INFO
 	select SRCU
+	select GUEST_PERF_EVENTS if PERF_EVENTS
 	help
 	  Support hosting virtualized guest machines.
 
