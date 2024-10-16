@@ -205,6 +205,7 @@ source "drivers/iommu/intel/Kconfig"
 source "drivers/iommu/iommufd/Kconfig"
 source "drivers/iommu/sw64/Kconfig"
 source "drivers/iommu/hisilicon/Kconfig"
+source "drivers/iommu/riscv/Kconfig"
 
 config IRQ_REMAP
 	bool "Support for Interrupt Remapping"
