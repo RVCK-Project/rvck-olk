@@ -1,0 +1,82 @@
+// SPDX-License-Identifier: (GPL-2.0 OR MIT)
+/* Copyright (c) 2023 Spacemit, Inc */
+
+/dts-v1/;
+
+#include "k1-x.dtsi"
+#include "k1-x_pinctrl.dtsi"
+
+/ {
+	model = "spacemit k1-x deb1 board";
+
+	memory@0 {
+		device_type = "memory";
+		reg = <0x0 0x00000000 0x0 0x80000000>;
+	};
+
+	memory@100000000 {
+		device_type = "memory";
+		reg = <0x1 0x00000000 0x0 0x80000000>;
+	};
+
+	chosen {
+		bootargs = "earlycon=sbi console=ttyS0,115200n8 loglevel=8 clk_ignore_unused swiotlb=65536 rdinit=/init";
+		stdout-path = "serial0:115200n8";
+	};
+};
+
+&pinctrl {
+	pinctrl-single,gpio-range = <
+		&range GPIO_49  2 (MUX_MODE0 | EDGE_NONE | PULL_UP   | PAD_3V_DS4)
+		&range GPIO_58  1 (MUX_MODE0 | EDGE_NONE | PULL_UP   | PAD_1V8_DS2)
+		&range GPIO_63  2 (MUX_MODE0 | EDGE_NONE | PULL_UP   | PAD_1V8_DS2)
+		&range GPIO_65  1 (MUX_MODE0 | EDGE_NONE | PULL_UP   | PAD_1V8_DS2)
+		&range GPIO_67  1 (MUX_MODE0 | EDGE_NONE | PULL_UP   | PAD_3V_DS4)
+		&range PRI_TDI  2 (MUX_MODE1 | EDGE_NONE | PULL_UP   | PAD_1V8_DS2)
+		&range PRI_TCK  1 (MUX_MODE1 | EDGE_NONE | PULL_DOWN | PAD_1V8_DS2)
+		&range PRI_TDO  1 (MUX_MODE1 | EDGE_NONE | PULL_UP   | PAD_1V8_DS2)
+		&range GPIO_74  1 (MUX_MODE0 | EDGE_NONE | PULL_UP   | PAD_1V8_DS2)
+		&range GPIO_80  1 (MUX_MODE0 | EDGE_NONE | PULL_UP   | PAD_3V_DS4)
+		&range GPIO_81  3 (MUX_MODE0 | EDGE_NONE | PULL_UP   | PAD_1V8_DS2)
+		&range GPIO_90  1 (MUX_MODE0 | EDGE_NONE | PULL_DOWN | PAD_1V8_DS2)
+		&range GPIO_91  2 (MUX_MODE0 | EDGE_NONE | PULL_UP   | PAD_1V8_DS2)
+		&range DVL0     1 (MUX_MODE1 | EDGE_NONE | PULL_DOWN | PAD_1V8_DS2)
+		&range DVL1     1 (MUX_MODE1 | EDGE_NONE | PULL_DOWN | PAD_1V8_DS0)
+		&range GPIO_110 1 (MUX_MODE0 | EDGE_NONE | PULL_DOWN | PAD_1V8_DS2)
+		&range GPIO_111 1 (MUX_MODE0 | EDGE_NONE | PULL_DOWN | PAD_1V8_DS2)
+		&range GPIO_113 1 (MUX_MODE0 | EDGE_NONE | PULL_DOWN | PAD_1V8_DS2)
+		&range GPIO_114 1 (MUX_MODE0 | EDGE_NONE | PULL_DOWN | PAD_1V8_DS2)
+		&range GPIO_115 1 (MUX_MODE0 | EDGE_NONE | PULL_DOWN | PAD_1V8_DS2)
+		&range GPIO_116 1 (MUX_MODE0 | EDGE_NONE | PULL_UP   | PAD_1V8_DS2)
+		&range GPIO_118 1 (MUX_MODE0 | EDGE_NONE | PULL_UP   | PAD_1V8_DS2)
+		&range GPIO_123 1 (MUX_MODE0 | EDGE_NONE | PULL_DOWN | PAD_1V8_DS0)
+		&range GPIO_124 1 (MUX_MODE0 | EDGE_NONE | PULL_UP   | PAD_1V8_DS2)
+		&range GPIO_125 3 (MUX_MODE0 | EDGE_NONE | PULL_DOWN | PAD_1V8_DS2)
+	>;
+};
+
+&gpio{
+	gpio-ranges = <
+		&pinctrl 49  GPIO_49  2
+		&pinctrl 58  GPIO_58  1
+		&pinctrl 63  GPIO_63  3
+		&pinctrl 67  GPIO_67  1
+		&pinctrl 70  PRI_TDI  4
+		&pinctrl 74  GPIO_74  1
+		&pinctrl 80  GPIO_80  4
+		&pinctrl 90  GPIO_90  3
+		&pinctrl 96  DVL0     2
+		&pinctrl 110 GPIO_110 1
+		&pinctrl 111 GPIO_111 1
+		&pinctrl 113 GPIO_113 1
+		&pinctrl 114 GPIO_114 3
+		&pinctrl 118 GPIO_118 1
+		&pinctrl 123 GPIO_123 5
+	>;
+};
+
+&uart0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_uart0_2>;
+	status = "okay";
+};
