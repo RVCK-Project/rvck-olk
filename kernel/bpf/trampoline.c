@@ -1074,6 +1074,46 @@ arch_prepare_bpf_trampoline(struct bpf_tramp_image *tr, void *image, void *image
 	return -ENOTSUPP;
 }
 
+void * __weak arch_alloc_bpf_trampoline(unsigned int size)
+{
+	void *image;
+
+	if (WARN_ON_ONCE(size > PAGE_SIZE))
+		return NULL;
+	image = bpf_jit_alloc_exec(PAGE_SIZE);
+	if (image)
+		set_vm_flush_reset_perms(image);
+	return image;
+}
+
+void __weak arch_free_bpf_trampoline(void *image, unsigned int size)
+{
+	WARN_ON_ONCE(size > PAGE_SIZE);
+	/* bpf_jit_free_exec doesn't need "size", but
+	 * bpf_prog_pack_free() needs it.
+	 */
+	bpf_jit_free_exec(image);
+}
+
+void __weak arch_protect_bpf_trampoline(void *image, unsigned int size)
+{
+	WARN_ON_ONCE(size > PAGE_SIZE);
+	set_memory_rox((long)image, 1);
+}
+
+void __weak arch_unprotect_bpf_trampoline(void *image, unsigned int size)
+{
+	WARN_ON_ONCE(size > PAGE_SIZE);
+	set_memory_nx((long)image, 1);
+	set_memory_rw((long)image, 1);
+}
+
+int __weak arch_bpf_trampoline_size(const struct btf_func_model *m, u32 flags,
+				    struct bpf_tramp_links *tlinks, void *func_addr)
+{
+	return -ENOTSUPP;
+}
+
 static int __init init_trampolines(void)
 {
 	int i;
