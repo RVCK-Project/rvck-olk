@@ -112,3 +112,4 @@ obj-$(CONFIG_NET_VENDOR_PENSANDO) += pensando/
 obj-$(CONFIG_NET_VENDOR_NORTHLINK) += northlink/
 obj-$(CONFIG_NET_VENDOR_NEBULA_MATRIX) += nebula-matrix/
 obj-$(CONFIG_NET_VENDOR_DINGHAI) += dinghai/
+obj-$(CONFIG_NET_VENDOR_SPACEMIT) += spacemit/
