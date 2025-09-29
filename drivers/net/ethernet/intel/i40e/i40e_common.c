@@ -6,6 +6,7 @@
 #include <linux/delay.h>
 #include <linux/etherdevice.h>
 #include <linux/pci.h>
+#include <linux/of.h>
 #include "i40e_adminq_cmd.h"
 #include "i40e_devids.h"
 #include "i40e_prototype.h"
@@ -3214,8 +3215,10 @@ static void i40e_parse_discover_capabilities(struct i40e_hw *hw, void *buff,
 			p->base_queue = phys_id;
 			break;
 		case I40E_AQ_CAP_ID_MSIX:
-			//p->num_msix_vectors = number;
-			p->num_msix_vectors = 8;
+			if (of_machine_is_compatible("sophgo,mango"))
+				p->num_msix_vectors = 8;
+			else
+				p->num_msix_vectors = number;
 			i40e_debug(hw, I40E_DEBUG_INIT,
 				   "HW Capability: MSIX vector count = %d\n",
 				   p->num_msix_vectors);
