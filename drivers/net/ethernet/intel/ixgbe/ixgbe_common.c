@@ -5,6 +5,7 @@
 #include <linux/delay.h>
 #include <linux/sched.h>
 #include <linux/netdevice.h>
+#include <linux/of.h>
 
 #include "ixgbe.h"
 #include "ixgbe_common.h"
@@ -2916,7 +2917,10 @@ u16 ixgbe_get_pcie_msix_count_generic(struct ixgbe_hw *hw)
 	case ixgbe_mac_X550EM_x:
 	case ixgbe_mac_x550em_a:
 		pcie_offset = IXGBE_PCIE_MSIX_82599_CAPS;
-		max_msix_count = IXGBE_MAX_MSIX_VECTORS_82599;
+		if (of_machine_is_compatible("sophgo,mango"))
+			max_msix_count = 9;
+		else
+			max_msix_count = IXGBE_MAX_MSIX_VECTORS_82599;
 		break;
 	default:
 		return 1;
