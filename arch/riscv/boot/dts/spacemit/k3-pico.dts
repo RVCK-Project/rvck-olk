@@ -1,0 +1,17 @@
+// SPDX-License-Identifier: (GPL-2.0 OR MIT)
+/* Copyright (c) 2025 Spacemit, Inc */
+
+#include "k3.dtsi"
+
+/ {
+	model = "Spacemit K3 Pico";
+
+	memory@102000000 {
+		device_type = "memory";
+		reg = <0x1 0x02000000 0x0 0x7e000000>;
+	};
+
+	chosen {
+		bootargs = "earlycon=sbi loglevel=8 rdinit=/init";
+	};
+};
