@@ -26,6 +26,20 @@
 
 #include <acpi/cppc_acpi.h>
 
+#ifdef CONFIG_ARM64
+/*
+ * cpu_has_amu_feat is exported from arch/arm64/kernel/cpufeature.c
+ * Only declare it for ARM64 builds.
+ */
+extern bool cpu_has_amu_feat(int cpu);
+#else
+/* For non-ARM64 architectures, AMU feature is not available. */
+static inline bool cpu_has_amu_feat(int cpu)
+{
+	return false;
+}
+#endif /* CONFIG_ARM64 */
+
 static bool boost_supported;
 
 struct cppc_workaround_oem_info {
@@ -796,6 +810,11 @@ static unsigned int cppc_cpufreq_get_rate(unsigned int cpu)
 
 	cpufreq_cpu_put(policy);
 
+	/*
+	 * Use smp_call_on_cpu for ARM64 with AMU feature to ensure
+	 * counters are active. For other architectures, use direct
+	 * call.
+	 */
 	if (cpu_has_amu_feat(cpu))
 		ret = smp_call_on_cpu(cpu, cppc_get_perf_ctrs_pair,
 				      &fb_ctrs, false);
