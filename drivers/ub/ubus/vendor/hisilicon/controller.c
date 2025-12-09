@@ -22,12 +22,14 @@ static struct ub_bus_controller_ops hi_ubc_ops = {
 	.mem_decoder_remove = hi_mem_decoder_remove,
 	.register_ubmem_irq = hi_register_ubmem_irq,
 	.unregister_ubmem_irq = hi_unregister_ubmem_irq,
-	.register_decoder_base_addr = hi_register_decoder_base_addr,
+	.init_decoder_queue = hi_init_decoder_queue,
+	.uninit_decoder_queue = hi_uninit_decoder_queue,
 	.entity_enable = hi_send_entity_enable_msg,
 	.create_decoder_table = hi_create_decoder_table,
 	.free_decoder_table = hi_free_decoder_table,
 	.decoder_map = hi_decoder_map,
 	.decoder_unmap = hi_decoder_unmap,
+	.decoder_event_deal = hi_decoder_event_deal,
 };
 
 static void ub_bus_controller_debugfs_init(struct ub_bus_controller *ubc)
