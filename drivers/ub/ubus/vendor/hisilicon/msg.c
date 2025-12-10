@@ -249,14 +249,14 @@ static int hi_msg_sync_wait(struct hi_message_device *hmd, int task_type,
 	unsigned long flags;
 	int idx;
 
-	while (!time_after64(get_jiffies_64(), end_time)) {
+	do {
 		idx = hi_msg_cq_poll(hmc, task_type, msn);
 		if (idx >= 0)
 			return idx;
 
 		if (flag)
 			usleep_range(SLEEP_MIN_US, SLEEP_MAX_US);
-	}
+	} while (!time_after64(get_jiffies_64(), end_time));
 
 	timeout_msg = kzalloc(TIMEOUT_MSG_INFO_SZ, GFP_ATOMIC);
 	if (!timeout_msg)
