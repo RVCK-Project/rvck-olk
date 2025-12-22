@@ -14,7 +14,7 @@
 #define UBASE_CMDQ_DESC_NUM_S		3
 #define UBASE_CMDQ_DESC_NUM		1024
 #define UBASE_CMDQ_TX_TIMEOUT		300000
-#define UBASE_CMDQ_MBX_TX_TIMEOUT	500
+#define UBASE_CMDQ_MBX_TX_TIMEOUT	50
 #define UBASE_CMDQ_CLEAR_WAIT_TIME	200
 #define UBASE_CMDQ_WAIT_TIME		10
 
@@ -310,9 +310,6 @@ int ubase_post_mailbox_by_event(struct ubase_dev *udev,
 int __ubase_cmd_send_in(struct ubase_dev *udev, struct ubase_cmd_buf *in);
 int __ubase_cmd_send_inout(struct ubase_dev *udev, struct ubase_cmd_buf *in,
 			   struct ubase_cmd_buf *out);
-
-int ubase_cmd_mbx_event_cb(struct notifier_block *nb, unsigned long action,
-			   void *data);
 
 int __ubase_register_crq_event(struct ubase_dev *udev,
 			       struct ubase_crq_event_nb *nb);

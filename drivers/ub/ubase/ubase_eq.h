@@ -34,7 +34,7 @@
 
 #define UBASE_INT_NAME_LEN 32
 
-#define UBASE_AE_LEVEL_NUM 4
+#define UBASE_AE_LEVEL_NUM 3
 
 /* Vector0 interrupt CMDQ event source register(RW) */
 #define UBASE_VECTOR0_CMDQ_SRC_REG	0x18004

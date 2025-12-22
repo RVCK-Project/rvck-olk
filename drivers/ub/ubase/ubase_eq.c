@@ -402,6 +402,19 @@ static void ubase_init_aeq_work(struct ubase_dev *udev, struct ubase_aeqe *aeqe)
 	queue_work(udev->ubase_async_wq, &aeq_work->work);
 }
 
+static void ubase_mbx_complete(struct ubase_dev *udev, struct ubase_aeqe *aeqe)
+{
+	struct ubase_mbx_event_context *ctx = &udev->mb_cmd.ctx;
+
+	if (aeqe->event.cmd.seq_num != ctx->seq_num)
+		return;
+
+	ctx->result = aeqe->event.cmd.status == 0 ? 0 : -EIO;
+	ctx->out_param = aeqe->event.cmd.out_param;
+
+	complete(&ctx->done);
+}
+
 static int ubase_async_event_handler(struct ubase_dev *udev)
 {
 	struct ubase_aeq *aeq = &udev->irq_table.aeq;
@@ -415,14 +428,12 @@ static int ubase_async_event_handler(struct ubase_dev *udev)
 
 		trace_ubase_aeqe(udev->dev, aeqe, eq);
 
-		ubase_dbg(udev,
-			  "event_type = 0x%x, sub_type = 0x%x, owner = %u, seq_num = %u, cons_index = %u.\n",
-			  aeqe->event_type, aeqe->sub_type, aeqe->owner,
-			  aeqe->event.cmd.seq_num, eq->cons_index);
-
 		ret = IRQ_HANDLED;
 
-		ubase_init_aeq_work(udev, aeqe);
+		if (aeqe->event_type == UBASE_EVENT_TYPE_MB)
+			ubase_mbx_complete(udev, aeqe);
+		else
+			ubase_init_aeq_work(udev, aeqe);
 
 		++aeq->eq.cons_index;
 		aeqe = ubase_next_aeqe(udev, aeq);
@@ -1170,11 +1181,6 @@ int ubase_register_ae_event(struct ubase_dev *udev)
 {
 	struct ubase_event_nb ubase_ae_nbs[UBASE_AE_LEVEL_NUM] = {
 		{
-			UBASE_DRV_UNIC,
-			UBASE_EVENT_TYPE_MB,
-			{ ubase_cmd_mbx_event_cb },
-			udev
-		}, {
 			UBASE_DRV_UNIC,
 			UBASE_EVENT_TYPE_TP_FLUSH_DONE,
 			{ ubase_ae_tp_flush_done },
