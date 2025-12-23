@@ -1251,8 +1251,8 @@ void ubcore_unregister_device(struct ubcore_device *dev)
 	up_write(&g_device_rwsem);
 	ubcore_clients_remove(dev);
 
-	ubcore_flush_workqueue((int)UBCORE_DISPATCH_EVENT_WQ);
-	ubcore_flush_workqueue((int)UBCORE_SIP_NOTIFY_WQ);
+	ubcore_drain_workqueue((int)UBCORE_DISPATCH_EVENT_WQ);
+	ubcore_drain_workqueue((int)UBCORE_SIP_NOTIFY_WQ);
 	ubcore_flush_dev_vtp_work(dev);
 	ubcore_session_flush(dev);
 
