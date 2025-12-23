@@ -61,6 +61,12 @@ int ub_get_bus_controller(struct ub_entity *ubc_dev[], unsigned int max_num,
 {
 	struct ub_bus_controller *ubc;
 	unsigned int ubc_num = 0;
+	int ret;
+
+	if (!manage_subsystem_ops) {
+		pr_err("manage subsystem ops is null\n");
+		return -EINVAL;
+	}
 
 	if (!real_num || !ubc_dev) {
 		pr_err("%s: input parameters invalid\n", __func__);
@@ -70,16 +76,25 @@ int ub_get_bus_controller(struct ub_entity *ubc_dev[], unsigned int max_num,
 	list_for_each_entry(ubc, &ubc_list, node) {
 		if (ubc_num >= max_num) {
 			pr_err("ubc list num over max num %u\n", max_num);
-			ub_put_bus_controller(ubc_dev, max_num);
-			return -ENOMEM;
+			ret = -ENOMEM;
+			goto ubc_put;
 		}
 
-		ubc_dev[ubc_num] = ub_entity_get(ubc->uent);
+		if (!ub_entity_get(ubc->uent)) {
+			pr_err("The ub_entity of ubc is null\n");
+			ret = -EINVAL;
+			goto ubc_put;
+		}
+		ubc_dev[ubc_num] = ubc->uent;
 		ubc_num++;
 	}
 	*real_num = ubc_num;
 
 	return 0;
+
+ubc_put:
+	ub_put_bus_controller(ubc_dev, max_num);
+	return ret;
 }
 EXPORT_SYMBOL_GPL(ub_get_bus_controller);
 
