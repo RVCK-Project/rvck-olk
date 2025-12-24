@@ -300,12 +300,14 @@ struct ubase_dev {
 	struct ubase_irq_table	irq_table;
 	struct ubase_mbox_cmd	mb_cmd;
 	struct workqueue_struct	*ubase_wq;
+	struct workqueue_struct	*ubase_ctrlq_wq;
 	struct workqueue_struct	*ubase_async_wq;
 	struct workqueue_struct	*ubase_reset_wq;
 	struct workqueue_struct	*ubase_period_wq;
 	struct workqueue_struct	*ubase_arq_wq;
 	unsigned long		serv_proc_cnt;
 	struct ubase_delay_work	service_task;
+	struct ubase_delay_work	ctrlq_service_task;
 	struct ubase_delay_work	reset_service_task;
 	struct ubase_delay_work	period_service_task;
 	struct ubase_delay_work	arq_service_task;

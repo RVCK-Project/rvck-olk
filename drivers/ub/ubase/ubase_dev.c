@@ -337,6 +337,7 @@ static int ubase_enable_period_service_task(struct ubase_dev *udev)
 static void ubase_period_service_task(struct work_struct *work)
 {
 #define UBASE_STATS_TIMER_INTERVAL		(300000 / (UBASE_PERIOD_100MS))
+#define UBASE_CTRLQ_TIMER_INTERVAL		(3000 / (UBASE_PERIOD_100MS))
 
 	struct ubase_delay_work *ubase_work =
 		container_of(work, struct ubase_delay_work, service_task.work);
@@ -351,6 +352,10 @@ static void ubase_period_service_task(struct work_struct *work)
 	if (test_bit(UBASE_STATE_INITED_B, &udev->state_bits) &&
 	    !(udev->serv_proc_cnt % UBASE_STATS_TIMER_INTERVAL))
 		ubase_update_stats_for_all(udev);
+
+	if (test_bit(UBASE_STATE_INITED_B, &udev->state_bits) &&
+	    !(udev->serv_proc_cnt % UBASE_CTRLQ_TIMER_INTERVAL))
+		ubase_ctrlq_clean_service_task(udev);
 
 	udev->serv_proc_cnt++;
 	ubase_enable_period_service_task(udev);
@@ -379,13 +384,21 @@ static void ubase_service_task(struct work_struct *work)
 
 	ubase_crq_service_task(ubase_work);
 	ubase_errhandle_service_task(ubase_work);
-	ubase_ctrlq_service_task(ubase_work);
-	ubase_ctrlq_clean_service_task(ubase_work);
+}
+
+static void ubase_ctrlq_service_task(struct work_struct *work)
+{
+	struct ubase_delay_work *ubase_work =
+		container_of(work, struct ubase_delay_work, service_task.work);
+
+	ubase_ctrlq_crq_service_task(ubase_work);
 }
 
 static void ubase_init_delayed_work(struct ubase_dev *udev)
 {
 	INIT_DELAYED_WORK(&udev->service_task.service_task, ubase_service_task);
+	INIT_DELAYED_WORK(&udev->ctrlq_service_task.service_task,
+			  ubase_ctrlq_service_task);
 	INIT_DELAYED_WORK(&udev->reset_service_task.service_task,
 			  ubase_reset_service_task);
 	INIT_DELAYED_WORK(&udev->period_service_task.service_task,
@@ -402,6 +415,12 @@ static int ubase_wq_init(struct ubase_dev *udev)
 	if (!udev->ubase_wq) {
 		ubase_err(udev, "failed to alloc ubase workqueue.\n");
 		goto err_alloc_ubase_wq;
+	}
+
+	udev->ubase_ctrlq_wq = UBASE_ALLOC_WQ("ubase_ctrlq_service");
+	if (!udev->ubase_ctrlq_wq) {
+		ubase_err(udev, "failed to alloc ubase ctrlq workqueue.\n");
+		goto err_alloc_ubase_ctrlq_wq;
 	}
 
 	udev->ubase_async_wq = UBASE_ALLOC_WQ("ubase_async_service");
@@ -438,6 +457,8 @@ err_alloc_ubase_period_wq:
 err_alloc_ubase_reset_wq:
 	destroy_workqueue(udev->ubase_async_wq);
 err_alloc_ubase_async_wq:
+	destroy_workqueue(udev->ubase_ctrlq_wq);
+err_alloc_ubase_ctrlq_wq:
 	destroy_workqueue(udev->ubase_wq);
 err_alloc_ubase_wq:
 	return -ENOMEM;
@@ -449,6 +470,7 @@ static void ubase_wq_uninit(struct ubase_dev *udev)
 	destroy_workqueue(udev->ubase_period_wq);
 	destroy_workqueue(udev->ubase_reset_wq);
 	destroy_workqueue(udev->ubase_async_wq);
+	destroy_workqueue(udev->ubase_ctrlq_wq);
 	destroy_workqueue(udev->ubase_wq);
 }
 
