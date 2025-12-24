@@ -181,22 +181,25 @@ static long cdma_jfce_ioctl(struct file *filp, unsigned int cmd,
 			    unsigned long arg)
 {
 	struct cdma_jfce *jfce = (struct cdma_jfce *)filp->private_data;
-	unsigned int nr;
-	int ret;
+	unsigned int nr = (unsigned int)_IOC_NR(cmd);
+	long ret = -ENOIOCTLCMD;
 
-	if (!arg || !jfce || _IOC_TYPE(cmd) != CDMA_EVENT_CMD_MAGIC) {
-		pr_err("invalid parameter, cmd = %u.\n", cmd);
+	if (!arg || !jfce) {
+		pr_err("jfce ioctl invalid parameter.\n");
 		return -EINVAL;
 	}
 
-	nr = (unsigned int)_IOC_NR(cmd);
+	if (_IOC_TYPE(cmd) != CDMA_EVENT_CMD_MAGIC) {
+		pr_err("jfce ioctl invalid cmd type, cmd = %u.\n", cmd);
+		return ret;
+	}
+
 	switch (nr) {
 	case JFCE_CMD_WAIT_EVENT:
 		ret = cdma_jfce_wait(jfce, filp, arg);
 		break;
 	default:
-		ret = -ENOIOCTLCMD;
-		break;
+		pr_err("jfce ioctl wrong nr = %u.\n", nr);
 	}
 
 	return ret;
@@ -588,8 +591,15 @@ static long cdma_jfae_ioctl(struct file *filp, unsigned int cmd, unsigned long a
 	unsigned int nr = (unsigned int)_IOC_NR(cmd);
 	long ret = -ENOIOCTLCMD;
 
-	if (!jfae)
+	if (!jfae) {
+		pr_err("jfae ioctl invalid parameter.\n");
 		return -EINVAL;
+	}
+
+	if (_IOC_TYPE(cmd) != CDMA_EVENT_CMD_MAGIC) {
+		pr_err("jfae ioctl invalid cmd type, cmd = %u.\n", cmd);
+		return ret;
+	}
 
 	switch (nr) {
 	case JFAE_CMD_GET_ASYNC_EVENT:

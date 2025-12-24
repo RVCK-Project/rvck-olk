@@ -811,7 +811,7 @@ int cdma_cmd_parse(struct cdma_file *cfile, struct cdma_ioctl_hdr *hdr)
 		dev_err(cdev->dev,
 			"invalid cdma user command or no handler, command = %u\n",
 			hdr->command);
-		return -EINVAL;
+		return -ENOIOCTLCMD;
 	}
 
 	mutex_lock(&cfile->ctx_mutex);
