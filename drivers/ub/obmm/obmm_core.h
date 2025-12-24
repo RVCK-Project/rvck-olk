@@ -155,6 +155,8 @@ struct obmm_import_region {
 
 	/* resource of the PA range */
 	struct ubmem_resource *ubmem_res;
+	/* the resource for this region */
+	struct resource *memdev_res;
 	u64 pa;
 
 	/* imported NUMA node */
