@@ -131,7 +131,7 @@ static void riscv_iommu_ir_msitbl_inval(struct riscv_iommu_domain *domain,
 	struct riscv_iommu_command cmd;
 
 	riscv_iommu_cmd_inval_gvma(&cmd);
-	riscv_iommu_cmd_inval_set_gscid(&cmd, 0);
+	riscv_iommu_cmd_inval_set_gscid(&cmd, domain->gscid);
 
 	if (pte) {
 		u64 addr = pfn_to_phys(FIELD_GET(RISCV_IOMMU_MSIPTE_PPN, pte->pte));
@@ -179,10 +179,13 @@ static void riscv_iommu_ir_msiptp_update(struct riscv_iommu_domain *domain)
 	struct riscv_iommu_bond *bond;
 	struct riscv_iommu_device *iommu, *prev;
 	struct riscv_iommu_dc new_dc = {
+		.tc = 0,
 		.ta = FIELD_PREP(RISCV_IOMMU_PC_TA_PSCID, domain->pscid) |
 		      RISCV_IOMMU_PC_TA_V,
-		.fsc = FIELD_PREP(RISCV_IOMMU_PC_FSC_MODE, domain->pgd_mode) |
-		       FIELD_PREP(RISCV_IOMMU_PC_FSC_PPN, virt_to_pfn(domain->pgd_root)),
+		.fsc = 0,
+		.iohgatp = FIELD_PREP(RISCV_IOMMU_DC_IOHGATP_MODE, domain->pgd_mode) |
+			FIELD_PREP(RISCV_IOMMU_DC_IOHGATP_GSCID, domain->gscid) |
+			FIELD_PREP(RISCV_IOMMU_DC_IOHGATP_PPN, virt_to_pfn(domain->pgd_root)),
 		.msiptp = virt_to_pfn(domain->msi_root) |
 			  FIELD_PREP(RISCV_IOMMU_DC_MSIPTP_MODE,
 				     RISCV_IOMMU_DC_MSIPTP_MODE_FLAT),
@@ -338,37 +341,14 @@ static int riscv_iommu_ir_vcpu_new_config(struct riscv_iommu_domain *domain,
 {
 	struct riscv_iommu_msipte *pte;
 	size_t idx;
-	int ret;
-
-	if (domain->pgd_mode)
-		riscv_iommu_ir_unmap_imsics(domain);
 
 	riscv_iommu_ir_msitbl_clear(domain);
-
 	domain->msi_addr_mask = vcpu_info->msi_addr_mask;
 	domain->msi_addr_pattern = vcpu_info->msi_addr_pattern;
 	domain->group_index_bits = vcpu_info->group_index_bits;
 	domain->group_index_shift = vcpu_info->group_index_shift;
 	domain->imsic_stride = SZ_4K;
 	domain->msitbl_config += 1;
-
-	if (domain->pgd_mode) {
-		/*
-		 * As in riscv_iommu_ir_irq_domain_create(), we do all stage1
-		 * mappings up front since the MSI table will manage the
-		 * translations.
-		 *
-		 * XXX: Since irq-set-vcpu-affinity is called in atomic context
-		 * we need GFP_ATOMIC. If the number of 4K dma pte allocations
-		 * is considered too many for GFP_ATOMIC, then we can wrap
-		 * riscv_iommu_pte_alloc()'s iommu_alloc_pages_node_sz() call
-		 * in a mempool and try to ensure the pool has enough elements
-		 * in riscv_iommu_ir_irq_domain_enable_msis().
-		 */
-		ret = riscv_iommu_ir_map_imsics(domain, GFP_ATOMIC);
-		if (ret)
-			return ret;
-	}
 
 	idx = riscv_iommu_ir_compute_msipte_idx(domain, vcpu_info->gpa);
 	pte = &domain->msi_root[idx];
@@ -637,11 +617,7 @@ int riscv_iommu_ir_attach_paging_domain(struct riscv_iommu_domain *domain,
 					struct device *dev)
 {
 	struct riscv_iommu_device *iommu = dev_to_iommu(dev);
-	struct riscv_iommu_info *info = dev_iommu_priv_get(dev);
 	int ret;
-
-	if (!info->irqdomain)
-		return 0;
 
 	/*
 	 * Do the domain's one-time setup of the msi configuration the
@@ -651,24 +627,36 @@ int riscv_iommu_ir_attach_paging_domain(struct riscv_iommu_domain *domain,
 		ret = riscv_ir_set_imsic_global_config(iommu, domain);
 		if (ret)
 			return ret;
-
-		/*
-		 * The RISC-V IOMMU MSI table is checked after the stage1 DMA
-		 * page tables. If we don't create identity mappings in the
-		 * stage1 table then we'll fault and won't even get a chance
-		 * to check the MSI table.
-		 */
-		if (domain->pgd_mode) {
-			ret = riscv_iommu_ir_map_imsics(domain, GFP_KERNEL_ACCOUNT);
-			if (ret) {
-				riscv_iommu_ir_free_msi_table(domain);
-				return ret;
-			}
-		}
 	}
 
 	return 0;
 }
+
+int riscv_iommu_stage1_attach_paging_domain(struct riscv_iommu_domain *domain,
+	struct device *dev)
+{
+	int ret;
+	const struct imsic_global_config *imsic_global;
+	u64 mask = 0;
+
+	imsic_global = imsic_get_global_config();
+
+	mask |= (BIT(imsic_global->group_index_bits) - 1) << (imsic_global->group_index_shift - 12);
+	mask |= BIT(imsic_global->hart_index_bits + imsic_global->guest_index_bits) - 1;
+	domain->msi_addr_mask = mask;
+	domain->msi_addr_pattern = imsic_global->base_addr >> 12;
+	domain->group_index_bits = imsic_global->group_index_bits;
+	domain->group_index_shift = imsic_global->group_index_shift;
+	domain->imsic_stride = BIT(imsic_global->guest_index_bits + 12);
+	if (domain->pgd_mode) {
+		ret = riscv_iommu_ir_map_imsics(domain, GFP_KERNEL_ACCOUNT);
+		if (ret)
+			return ret;
+	}
+
+	return 0;
+}
+
 
 void riscv_iommu_ir_free_paging_domain(struct riscv_iommu_domain *domain)
 {
