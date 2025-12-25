@@ -143,6 +143,8 @@ int handle_dts_ubrt(void)
 	pr_info("ubios sub table count is %u\n", ubios_table->count);
 
 	for (i = 0; i < ubios_table->count; i++) {
+		if (ubios_table->sub_tables[i] == 0)
+			continue;
 		memset(name, 0, UB_TABLE_HEADER_NAME_LEN);
 		ret = get_ubrt_table_name(name, ubios_table->sub_tables[i]);
 		if (ret)
