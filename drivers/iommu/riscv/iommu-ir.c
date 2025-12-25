@@ -131,7 +131,7 @@ static void riscv_iommu_ir_msitbl_inval(struct riscv_iommu_domain *domain,
 	struct riscv_iommu_command cmd;
 
 	riscv_iommu_cmd_inval_gvma(&cmd);
-	riscv_iommu_cmd_inval_set_gscid(&cmd, 0);
+	riscv_iommu_cmd_inval_set_gscid(&cmd, domain->gscid);
 
 	if (pte) {
 		u64 addr = pfn_to_phys(FIELD_GET(RISCV_IOMMU_MSIPTE_PPN, pte->pte));
@@ -640,9 +640,6 @@ int riscv_iommu_ir_attach_paging_domain(struct riscv_iommu_domain *domain,
 	struct riscv_iommu_info *info = dev_iommu_priv_get(dev);
 	int ret;
 
-	if (!info->irqdomain)
-		return 0;
-
 	/*
 	 * Do the domain's one-time setup of the msi configuration the
 	 * first time the domain is attached and the msis are enabled.
@@ -651,7 +648,6 @@ int riscv_iommu_ir_attach_paging_domain(struct riscv_iommu_domain *domain,
 		ret = riscv_ir_set_imsic_global_config(iommu, domain);
 		if (ret)
 			return ret;
-
 		/*
 		 * The RISC-V IOMMU MSI table is checked after the stage1 DMA
 		 * page tables. If we don't create identity mappings in the

@@ -29,6 +29,7 @@ struct riscv_iommu_domain {
 	struct list_head bonds;
 	spinlock_t lock;			/* protect bonds list updates. */
 	int pscid;
+	int gscid;
 	int amo_enabled;
 	int numa_node;
 	unsigned int pgd_mode;
