@@ -1123,10 +1123,6 @@ int udma_probe(struct auxiliary_device *adev,
 
 void udma_remove(struct auxiliary_device *adev)
 {
-#define MIN_SLEEP_TIME 100
-#define MAX_SLEEP_TIME 800
-#define TIME_SLEEP_RATE 2
-	uint32_t wait_time = MIN_SLEEP_TIME;
 	struct udma_dev *udma_dev;
 
 	ubase_reset_unregister(adev);
@@ -1139,14 +1135,9 @@ void udma_remove(struct auxiliary_device *adev)
 	}
 
 	ubcore_stop_requests(&udma_dev->ub_dev);
-	while (true) {
-		if (!udma_close_ue_rx(udma_dev, false, false, false, 0))
-			break;
-		msleep(wait_time);
-		if (wait_time < MAX_SLEEP_TIME)
-			wait_time *= TIME_SLEEP_RATE;
-		dev_err_ratelimited(&adev->dev, "udma close ue rx failed in remove process.\n");
-	}
+	if (udma_close_ue_rx(udma_dev, false, false, false, 0))
+		dev_err(&adev->dev, "udma close ue rx failed in remove process.\n");
+
 	udma_dev->status = UDMA_SUSPEND;
 	udma_report_reset_event(UBCORE_EVENT_ELR_ERR, udma_dev);
 	udma_unregister_none_crq_event(adev);
