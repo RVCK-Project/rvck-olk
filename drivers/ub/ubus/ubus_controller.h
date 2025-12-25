@@ -18,8 +18,8 @@ struct ub_bus_controller_ops {
 	void (*mem_decoder_remove)(struct ub_bus_controller *ubc);
 	void (*register_ubmem_irq)(struct ub_bus_controller *ubc);
 	void (*unregister_ubmem_irq)(struct ub_bus_controller *ubc);
-	void (*register_decoder_base_addr)(struct ub_bus_controller *ubc,
-					   u64 *cmd_queue, u64 *event_queue);
+	int (*init_decoder_queue)(struct ub_decoder *decoder);
+	void (*uninit_decoder_queue)(struct ub_decoder *decoder);
 	int (*entity_enable)(struct ub_entity *uent, u8 enable);
 	int (*create_decoder_table)(struct ub_decoder *decoder);
 	void (*free_decoder_table)(struct ub_decoder *decoder);
@@ -27,6 +27,7 @@ struct ub_bus_controller_ops {
 			   struct decoder_map_info *info);
 	int (*decoder_unmap)(struct ub_decoder *decoder, phys_addr_t addr,
 			     u64 size);
+	void (*decoder_event_deal)(struct ub_decoder *decoder);
 
 	KABI_RESERVE(1)
 	KABI_RESERVE(2)

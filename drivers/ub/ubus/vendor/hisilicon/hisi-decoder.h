@@ -38,13 +38,17 @@
 			       DECODER_PAGE_SIZE * \
 			       RGTLB_TO_PGTLB)
 
-void hi_register_decoder_base_addr(struct ub_bus_controller *ubc,
-				   u64 *cmd_queue, u64 *event_queue);
+int hi_init_decoder_queue(struct ub_decoder *decoder);
+void hi_uninit_decoder_queue(struct ub_decoder *decoder);
 
 int hi_create_decoder_table(struct ub_decoder *decoder);
 void hi_free_decoder_table(struct ub_decoder *decoder);
 
 int hi_decoder_map(struct ub_decoder *decoder, struct decoder_map_info *info);
 int hi_decoder_unmap(struct ub_decoder *decoder, phys_addr_t addr, u64 size);
+
+int hi_decoder_cmd_request(struct ub_decoder *decoder, phys_addr_t addr,
+			   u64 size, enum ub_cmd_op_type op);
+void hi_decoder_event_deal(struct ub_decoder *decoder);
 
 #endif /* __HISI_DECODER_H__ */

@@ -1057,9 +1057,6 @@ static struct ub_entity *ub_get_ue_by_entity_idx(struct ub_entity *pue, u32 enti
 {
 	struct ub_entity *ue;
 
-	if (ub_check_ue_para(pue, entity_idx))
-		return NULL;
-
 	list_for_each_entry(ue, &pue->ue_list, node) {
 		if (ue->entity_idx == entity_idx)
 			return ue;
