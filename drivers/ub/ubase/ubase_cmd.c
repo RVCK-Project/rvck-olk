@@ -666,31 +666,6 @@ static bool ubase_cmd_is_mbx_avail(struct ubase_dev *udev)
 	return true;
 }
 
-int ubase_cmd_mbx_event_cb(struct notifier_block *nb,
-			   unsigned long action, void *data)
-{
-	struct ubase_event_nb *ev_nb = container_of(nb, struct ubase_event_nb, nb);
-	struct ubase_aeq_notify_info *info = data;
-	struct ubase_aeqe *aeqe = info->aeqe;
-	struct ubase_dev *udev = ev_nb->back;
-	struct ubase_mbx_event_context *ctx;
-
-	ctx = &udev->mb_cmd.ctx;
-	if (aeqe->event.cmd.seq_num != ctx->seq_num) {
-		ubase_err(udev,
-			  "mbx seq num is different, cmd seq_num = %u, ctx seq_num = %u.\n",
-			  aeqe->event.cmd.seq_num, ctx->seq_num);
-		return NOTIFY_DONE;
-	}
-
-	ctx->result = aeqe->event.cmd.status == 0 ? 0 : -EIO;
-	ctx->out_param = aeqe->event.cmd.out_param;
-
-	complete(&ctx->done);
-
-	return NOTIFY_OK;
-}
-
 static int ubase_cmd_wait_mbx_completed(struct ubase_dev *udev,
 					union ubase_mbox *mbx)
 {

@@ -430,27 +430,31 @@ static int unic_backup_stats(struct unic_dev *unic_dev,
 			     struct unic_sq_stats **sq_stats,
 			     struct unic_rq_stats **rq_stats)
 {
+	struct unic_sq_stats *tx_stats;
+	struct unic_rq_stats *rx_stats;
 	u32 i;
 
-	*sq_stats = kcalloc(unic_dev->channels.num, sizeof(**sq_stats),
-			    GFP_KERNEL);
-	if (ZERO_OR_NULL_PTR(*sq_stats))
+	tx_stats = kcalloc(unic_dev->channels.num, sizeof(*tx_stats),
+			   GFP_KERNEL);
+	if (!tx_stats)
 		return -ENOMEM;
 
-	*rq_stats = kcalloc(unic_dev->channels.num, sizeof(**rq_stats),
-			    GFP_KERNEL);
-	if (ZERO_OR_NULL_PTR(*rq_stats)) {
-		if (unic_tx_changed(unic_dev))
-			kfree(*sq_stats);
+	rx_stats = kcalloc(unic_dev->channels.num, sizeof(*rx_stats),
+			   GFP_KERNEL);
+	if (!rx_stats) {
+		kfree(tx_stats);
 		return -ENOMEM;
 	}
 
 	for (i = 0; i < unic_dev->channels.num; i++) {
-		memcpy(sq_stats[i], &unic_dev->channels.c[i].sq->stats,
+		memcpy(&tx_stats[i], &unic_dev->channels.c[i].sq->stats,
 		       sizeof(struct unic_sq_stats));
-		memcpy(rq_stats[i], &unic_dev->channels.c[i].rq->stats,
+		memcpy(&rx_stats[i], &unic_dev->channels.c[i].rq->stats,
 		       sizeof(struct unic_rq_stats));
 	}
+
+	*sq_stats = tx_stats;
+	*rq_stats = rx_stats;
 
 	return 0;
 }
