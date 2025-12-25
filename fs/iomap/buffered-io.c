@@ -1562,10 +1562,12 @@ static loff_t iomap_folio_mkwrite_iter(struct iomap_iter *iter,
 			return ret;
 		block_commit_write(&folio->page, 0, length);
 	} else {
+		size_t poff = offset_in_folio(folio, iter->pos);
+
 		WARN_ON_ONCE(!folio_test_uptodate(folio));
 
 		ifs_alloc(iter->inode, folio, 0);
-		iomap_set_range_dirty(folio, 0, length);
+		iomap_set_range_dirty(folio, poff, length);
 	}
 
 	return length;
