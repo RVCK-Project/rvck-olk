@@ -44,6 +44,19 @@ void ubcore_flush_workqueue(int queue_type)
 	flush_workqueue(g_ubcore_workqueues[queue_type]);
 }
 
+void ubcore_drain_workqueue(int queue_type)
+{
+	if (!check_queue_type_valid(queue_type) ||
+	    g_ubcore_workqueues[queue_type] == NULL) {
+		ubcore_log_err(
+			"queue_type %d out of range or workqueue is NULL\n",
+			queue_type);
+		return;
+	}
+
+	drain_workqueue(g_ubcore_workqueues[queue_type]);
+}
+
 int ubcore_queue_work(int queue_type, struct work_struct *work)
 {
 	if (!check_queue_type_valid(queue_type) ||
