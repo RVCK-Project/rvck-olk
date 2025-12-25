@@ -119,11 +119,11 @@ int __ubase_ctrlq_send(struct ubase_dev *udev, struct ubase_ctrlq_msg *msg,
 		       struct ubase_ctrlq_ue_info *ue_info);
 
 bool ubase_ctrlq_check_seq(struct ubase_dev *udev, u16 seq);
-void ubase_ctrlq_service_task(struct ubase_delay_work *ubase_work);
+void ubase_ctrlq_crq_service_task(struct ubase_delay_work *ubase_work);
 void ubase_ctrlq_handle_crq_msg(struct ubase_dev *udev,
 				struct ubase_ctrlq_base_block *head,
 				u16 seq, void *msg, u16 data_len);
-void ubase_ctrlq_clean_service_task(struct ubase_delay_work *ubase_work);
+void ubase_ctrlq_clean_service_task(struct ubase_dev *udev);
 void ubase_ctrlq_disable_remote(struct ubase_dev *udev);
 
 #endif

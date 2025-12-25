@@ -213,10 +213,10 @@ static void ubase_errhandle_task_schedule(struct ubase_dev *udev)
 void ubase_ctrlq_task_schedule(struct ubase_dev *udev)
 {
 	if (!test_and_set_bit(UBASE_STATE_CTRLQ_SERVICE_SCHED,
-			      &udev->service_task.state)) {
+			      &udev->ctrlq_service_task.state)) {
 		udev->ctrlq.crq_table.last_crq_scheduled = jiffies;
-		mod_delayed_work(udev->ubase_wq,
-				 &udev->service_task.service_task, 0);
+		mod_delayed_work(udev->ubase_ctrlq_wq,
+				 &udev->ctrlq_service_task.service_task, 0);
 	}
 }
 
