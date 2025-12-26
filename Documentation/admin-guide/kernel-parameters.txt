@@ -2294,7 +2294,7 @@
 
 	iommu.strict=	[ARM64, X86, S390] Configure TLB invalidation behaviour
 			Format: { "0" | "1" }
-			0 - Lazy mode.
+			0 - Lazy mode (default).
 			  Request that DMA unmap operations use deferred
 			  invalidation of hardware TLBs, for increased
 			  throughput at the cost of reduced device isolation.
