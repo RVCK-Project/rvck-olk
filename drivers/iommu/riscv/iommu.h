@@ -140,6 +140,8 @@ struct irq_domain *riscv_iommu_ir_irq_domain_create(struct riscv_iommu_device *i
 void riscv_iommu_ir_irq_domain_remove(struct riscv_iommu_info *info);
 int riscv_iommu_ir_attach_paging_domain(struct riscv_iommu_domain *domain,
 					struct device *dev);
+int riscv_iommu_stage1_attach_paging_domain(struct riscv_iommu_domain *domain,
+					struct device *dev);
 void riscv_iommu_ir_free_paging_domain(struct riscv_iommu_domain *domain);
 void riscv_iommu_ir_get_resv_regions(struct device *dev, struct list_head *head);
 
