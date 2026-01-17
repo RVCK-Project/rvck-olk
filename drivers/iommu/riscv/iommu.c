@@ -1564,7 +1564,7 @@ static struct iommu_device *riscv_iommu_probe_device(struct device *dev)
 	 */
 	tc = 0;
 	if (iommu->caps & RISCV_IOMMU_CAPABILITIES_AMO_HWAD)
-		tc |= RISCV_IOMMU_DC_TC_SADE;
+		tc |= RISCV_IOMMU_DC_TC_SADE | RISCV_IOMMU_DC_TC_GADE;
 	for (i = 0; i < fwspec->num_ids; i++) {
 		dc = riscv_iommu_get_dc(iommu, fwspec->ids[i]);
 		if (!dc) {
