@@ -1057,10 +1057,6 @@
 	};
 };
 
-&gpu {
-	status = "okay";
-};
-
 &dpu_enc1 {
 	ports {
 		/delete-node/ port@0;
