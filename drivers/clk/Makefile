@@ -139,4 +139,4 @@ obj-y					+= xilinx/
 obj-$(CONFIG_CLK_ZHIHE_A210)		+= zhihe/
 obj-$(CONFIG_ARCH_ZYNQ)			+= zynq/
 obj-$(CONFIG_COMMON_CLK_ZYNQMP)         += zynqmp/
-obj-$(CONFIG_ARCH_XUANTIE)              += xuantie/
+obj-$(CONFIG_ARCH_XUANTIE)              += thead/
