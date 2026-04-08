@@ -129,4 +129,6 @@ SCHED_FEAT(SOFT_DOMAIN, false)
 SCHED_FEAT(SOFT_QUOTA, false)
 #endif
 
+#if defined(CONFIG_SCHED_SMT)
 SCHED_FEAT(WA_SMT, false)
+#endif
