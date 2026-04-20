@@ -384,8 +384,6 @@
 		mboxes = <&mbox_910t 1 0>;
 		mbox-names = "aon";
 		opensbi-mboxes = <&mbox_910r>;
-		resets = <&rst TH1520_RESET_ID_GPU_CLKGEN>;
-		reset-names = "gpu-clkgen";
 		status = "okay";
 		#power-domain-cells = <1>;
 	};
