@@ -475,7 +475,6 @@ static const struct pwm_ops pwm_samsung_ops = {
 	.request	= pwm_samsung_request,
 	.free		= pwm_samsung_free,
 	.apply		= pwm_samsung_apply,
-	.owner		= THIS_MODULE,
 };
 
 #ifdef CONFIG_OF
@@ -676,6 +675,7 @@ static struct platform_driver pwm_samsung_driver = {
 };
 module_platform_driver(pwm_samsung_driver);
 
+MODULE_DESCRIPTION("Samsung Pulse Width Modulator driver");
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Tomasz Figa <tomasz.figa@gmail.com>");
 MODULE_ALIAS("platform:samsung-pwm");
