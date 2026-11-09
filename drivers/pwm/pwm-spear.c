@@ -189,7 +189,6 @@ static int spear_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
 
 static const struct pwm_ops spear_pwm_ops = {
 	.apply = spear_pwm_apply,
-	.owner = THIS_MODULE,
 };
 
 static int spear_pwm_probe(struct platform_device *pdev)
@@ -276,6 +275,7 @@ static struct platform_driver spear_pwm_driver = {
 
 module_platform_driver(spear_pwm_driver);
 
+MODULE_DESCRIPTION("ST Microelectronics SPEAr Pulse Width Modulator driver");
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Shiraz Hashim <shiraz.linux.kernel@gmail.com>");
 MODULE_AUTHOR("Viresh Kumar <viresh.kumar@linaro.com>");
