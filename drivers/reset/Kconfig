@@ -22,6 +22,17 @@ config RESET_A10SR
 	  This option enables support for the external reset functions for
 	  peripheral PHYs on the Altera Arria10 System Resource Chip.
 
+config RESET_ZHIHE_A210
+	tristate "ZhiHe A210 reset controller"
+	depends on ARCH_ZHIHE || COMPILE_TEST
+	default ARCH_ZHIHE
+	help
+	  Build the reset controller driver for the ZhiHe A210 SoC.
+
+	  This driver provides reset control for the various hardware
+	  blocks in the A210 SoC. Say Y if you are building a kernel
+	  for the ZhiHe A210 platform.
+
 config RESET_ATH79
 	bool "AR71xx Reset Driver" if COMPILE_TEST
 	default ATH79
@@ -254,14 +265,14 @@ config RESET_SUNXI
 	  This enables the reset driver for Allwinner SoCs.
 
 config RESET_TH1520
-	bool "TH1520 Reset Driver"
-	depends on (ARCH_XUANTIE || COMPILE_TEST) && OF
-	select MFD_SYSCON
-	default ARCH_XUANTIE
+	tristate "T-HEAD 1520 reset controller"
+	depends on ARCH_THEAD || COMPILE_TEST
+	select REGMAP_MMIO
 	help
-	  Support for the XuanTie 1520 RISC-V SoC reset controller.
-	  Say Y if you want to control reset signals provided by this
-	  controller.
+	  This driver provides support for the T-HEAD TH1520 SoC reset controller,
+	  which manages hardware reset lines for SoC components such as the GPU.
+	  Enable this option if you need to control hardware resets on TH1520-based
+	  systems.
 
 config RESET_TI_SCI
 	tristate "TI System Control Interface (TI-SCI) reset driver"
