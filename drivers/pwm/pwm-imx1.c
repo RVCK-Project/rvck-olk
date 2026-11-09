@@ -146,7 +146,6 @@ static int pwm_imx1_apply(struct pwm_chip *chip, struct pwm_device *pwm,
 
 static const struct pwm_ops pwm_imx1_ops = {
 	.apply = pwm_imx1_apply,
-	.owner = THIS_MODULE,
 };
 
 static const struct of_device_id pwm_imx1_dt_ids[] = {
@@ -193,5 +192,6 @@ static struct platform_driver pwm_imx1_driver = {
 };
 module_platform_driver(pwm_imx1_driver);
 
+MODULE_DESCRIPTION("i.MX1 and i.MX21 Pulse Width Modulator driver");
 MODULE_LICENSE("GPL v2");
 MODULE_AUTHOR("Sascha Hauer <s.hauer@pengutronix.de>");
