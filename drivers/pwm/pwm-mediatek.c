@@ -239,7 +239,6 @@ static int pwm_mediatek_apply(struct pwm_chip *chip, struct pwm_device *pwm,
 
 static const struct pwm_ops pwm_mediatek_ops = {
 	.apply = pwm_mediatek_apply,
-	.owner = THIS_MODULE,
 };
 
 static int pwm_mediatek_probe(struct platform_device *pdev)
@@ -398,4 +397,5 @@ static struct platform_driver pwm_mediatek_driver = {
 module_platform_driver(pwm_mediatek_driver);
 
 MODULE_AUTHOR("John Crispin <blogic@openwrt.org>");
+MODULE_DESCRIPTION("MediaTek general purpose Pulse Width Modulator driver");
 MODULE_LICENSE("GPL v2");

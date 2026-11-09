@@ -129,7 +129,6 @@ static int visconti_pwm_get_state(struct pwm_chip *chip, struct pwm_device *pwm,
 static const struct pwm_ops visconti_pwm_ops = {
 	.apply = visconti_pwm_apply,
 	.get_state = visconti_pwm_get_state,
-	.owner = THIS_MODULE,
 };
 
 static int visconti_pwm_probe(struct platform_device *pdev)
@@ -172,6 +171,7 @@ static struct platform_driver visconti_pwm_driver = {
 };
 module_platform_driver(visconti_pwm_driver);
 
+MODULE_DESCRIPTION("Toshiba Visconti Pulse Width Modulator driver");
 MODULE_LICENSE("GPL v2");
 MODULE_AUTHOR("Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>");
 MODULE_ALIAS("platform:pwm-visconti");
