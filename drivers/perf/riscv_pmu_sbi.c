@@ -99,7 +99,7 @@ static unsigned int riscv_pmu_irq_mask;
 static unsigned int riscv_pmu_irq;
 
 /* Cache the available counters in a bitmask */
-static unsigned long cmask;
+static DECLARE_BITMAP(cmask, RISCV_MAX_COUNTERS);
 
 static int pmu_event_find_cache(u64 config);
 struct sbi_pmu_event_data {
@@ -301,6 +301,21 @@ static struct sbi_pmu_event_data pmu_cache_event_map[PERF_COUNT_HW_CACHE_MAX]
 	},
 };
 
+static struct sbiret pmu_sbi_ctr_cfg_match(unsigned long cbase,
+					   unsigned long ctr_mask,
+					   unsigned long cflags,
+					   unsigned long event_idx,
+					   u64 config)
+{
+#if defined(CONFIG_32BIT)
+	return sbi_ecall(SBI_EXT_PMU, SBI_EXT_PMU_COUNTER_CFG_MATCH, cbase,
+			 ctr_mask, cflags, event_idx, config, config >> 32);
+#else
+	return sbi_ecall(SBI_EXT_PMU, SBI_EXT_PMU_COUNTER_CFG_MATCH, cbase,
+			 ctr_mask, cflags, event_idx, config, 0);
+#endif
+}
+
 static int pmu_sbi_check_event_info(void)
 {
 	int num_events = ARRAY_SIZE(pmu_hw_event_map) + PERF_COUNT_HW_CACHE_MAX *
@@ -363,14 +378,21 @@ free_mem:
 
 static void pmu_sbi_check_event(struct sbi_pmu_event_data *edata)
 {
-	struct sbiret ret;
+	struct sbiret ret = { .error = SBI_ERR_NOT_SUPPORTED };
+	int i;
 
-	ret = sbi_ecall(SBI_EXT_PMU, SBI_EXT_PMU_COUNTER_CFG_MATCH,
-			0, cmask, 0, edata->event_idx, 0, 0);
-	if (!ret.error) {
-		sbi_ecall(SBI_EXT_PMU, SBI_EXT_PMU_COUNTER_STOP,
-			  ret.value, 0x1, SBI_PMU_STOP_FLAG_RESET, 0, 0, 0);
-	} else if (ret.error == SBI_ERR_NOT_SUPPORTED) {
+	for (i = 0; i < BITS_TO_LONGS(RISCV_MAX_COUNTERS); i++) {
+		if (!cmask[i])
+			continue;
+		ret = pmu_sbi_ctr_cfg_match(i * BITS_PER_LONG, cmask[i], 0,
+					    edata->event_idx, 0);
+		if (!ret.error) {
+			sbi_ecall(SBI_EXT_PMU, SBI_EXT_PMU_COUNTER_STOP,
+				  ret.value, 0x1, SBI_PMU_STOP_FLAG_RESET, 0, 0, 0);
+			return;
+		}
+	}
+	if (ret.error == SBI_ERR_NOT_SUPPORTED) {
 		/* This event cannot be monitored by any counter */
 		edata->event_idx = -ENOENT;
 	}
@@ -490,10 +512,10 @@ int riscv_pmu_get_hpm_info(u32 *hw_ctr_width, u32 *num_hw_ctr)
 	union sbi_pmu_ctr_info *info;
 	u32 hpm_width = 0, hpm_count = 0;
 
-	if (!cmask)
+	if (bitmap_empty(cmask, RISCV_MAX_COUNTERS))
 		return -EINVAL;
 
-	for_each_set_bit(i, &cmask, RISCV_MAX_COUNTERS) {
+	for_each_set_bit(i, cmask, RISCV_MAX_COUNTERS) {
 		info = &pmu_ctr_list[i];
 		if (!info)
 			continue;
@@ -542,8 +564,8 @@ static int pmu_sbi_ctr_get_idx(struct perf_event *event)
 	struct riscv_pmu *rvpmu = to_riscv_pmu(event->pmu);
 	struct cpu_hw_events *cpuc = this_cpu_ptr(rvpmu->hw_events);
 	struct sbiret ret;
-	int idx;
-	uint64_t cbase = 0, cmask = rvpmu->cmask;
+	int idx, i;
+	u64 cbase = 0, cmask = 0;
 	unsigned long cflags = 0;
 
 	cflags = pmu_sbi_get_filter_flags(event);
@@ -564,14 +586,21 @@ static int pmu_sbi_ctr_get_idx(struct perf_event *event)
 	}
 
 	/* retrieve the available counter index */
-#if defined(CONFIG_32BIT)
-	ret = sbi_ecall(SBI_EXT_PMU, SBI_EXT_PMU_COUNTER_CFG_MATCH, cbase,
-			cmask, cflags, hwc->event_base, hwc->config,
-			hwc->config >> 32);
-#else
-	ret = sbi_ecall(SBI_EXT_PMU, SBI_EXT_PMU_COUNTER_CFG_MATCH, cbase,
-			cmask, cflags, hwc->event_base, hwc->config, 0);
-#endif
+	if (cmask) {
+		ret = pmu_sbi_ctr_cfg_match(cbase, cmask, cflags, hwc->event_base,
+					    hwc->config);
+	} else {
+		ret.error = SBI_ERR_NOT_SUPPORTED;
+		for (i = 0; i < BITS_TO_LONGS(RISCV_MAX_COUNTERS); i++) {
+			if (!rvpmu->cmask[i])
+				continue;
+			cbase = i * BITS_PER_LONG;
+			ret = pmu_sbi_ctr_cfg_match(cbase, rvpmu->cmask[i], cflags,
+						    hwc->event_base, hwc->config);
+			if (!ret.error)
+				break;
+		}
+	}
 	if (ret.error) {
 		pr_debug("Not able to find a counter for event %lx config %llx\n",
 			hwc->event_base, hwc->config);
@@ -579,7 +608,7 @@ static int pmu_sbi_ctr_get_idx(struct perf_event *event)
 	}
 
 	idx = ret.value;
-	if (!test_bit(idx, &rvpmu->cmask) || !pmu_ctr_list[idx].value)
+	if (!test_bit(idx, rvpmu->cmask) || !pmu_ctr_list[idx].value)
 		return -ENOENT;
 
 	/* Additional sanity check for the counter id */
@@ -883,7 +912,7 @@ static int pmu_sbi_get_ctrinfo(int nctr, unsigned long *mask)
 			/* The logical counter ids are not expected to be contiguous */
 			continue;
 
-		*mask |= BIT(i);
+		set_bit(i, mask);
 
 		cinfo.value = ret.value;
 		if (cinfo.type == SBI_PMU_CTR_TYPE_FW)
@@ -900,12 +929,19 @@ static int pmu_sbi_get_ctrinfo(int nctr, unsigned long *mask)
 
 static inline void pmu_sbi_stop_all(struct riscv_pmu *pmu)
 {
+	int i;
+
 	/*
 	 * No need to check the error because we are disabling all the counters
 	 * which may include counters that are not enabled yet.
 	 */
-	sbi_ecall(SBI_EXT_PMU, SBI_EXT_PMU_COUNTER_STOP,
-		  0, pmu->cmask, SBI_PMU_STOP_FLAG_RESET, 0, 0, 0);
+	for (i = 0; i < BITS_TO_LONGS(RISCV_MAX_COUNTERS); i++) {
+		if (!pmu->cmask[i])
+			continue;
+		sbi_ecall(SBI_EXT_PMU, SBI_EXT_PMU_COUNTER_STOP,
+			  i * BITS_PER_LONG, pmu->cmask[i],
+			  SBI_PMU_STOP_FLAG_RESET, 0, 0, 0);
+	}
 }
 
 static inline void pmu_sbi_stop_hw_ctrs(struct riscv_pmu *pmu)
@@ -1002,7 +1038,7 @@ static inline void pmu_sbi_start_ovf_ctrs_snapshot(struct cpu_hw_events *cpu_hw_
 	struct riscv_pmu_snapshot_data *sdata = cpu_hw_evt->snapshot_addr;
 
 	for_each_set_bit(idx, cpu_hw_evt->used_hw_ctrs, RISCV_MAX_COUNTERS) {
-		if (ctr_ovf_mask & BIT(idx)) {
+		if (ctr_ovf_mask & BIT_ULL(idx)) {
 			event = cpu_hw_evt->events[idx];
 			hwc = &event->hw;
 			max_period = riscv_pmu_ctr_get_width_mask(event);
@@ -1110,15 +1146,15 @@ static irqreturn_t pmu_sbi_ovf_handler(struct cpu_hw_events *cpu_hw_evt,
 			/* compute hardware counter index */
 			hidx = info->csr - CSR_CYCLE;
 
-		/* check if the corresponding bit is set in sscountovf or overflow mask in shmem */
-		if (!(overflow & BIT(hidx)))
+		/* check if the corresponding bit is set in scountovf or overflow mask in shmem */
+		if (!(overflow & BIT_ULL(hidx)))
 			continue;
 
 		/*
 		 * Keep a track of overflowed counters so that they can be started
 		 * with updated initial value.
 		 */
-		overflowed_ctrs |= BIT(lidx);
+		overflowed_ctrs |= BIT_ULL(lidx);
 		hw_evt = &event->hw;
 		/* Update the event states here so that we know the state while reading */
 		hw_evt->state |= PERF_HES_STOPPED;
@@ -1494,7 +1530,7 @@ static int pmu_sbi_device_probe(struct platform_device *pdev)
 	}
 
 	/* cache all the information about counters now */
-	if (pmu_sbi_get_ctrinfo(num_counters, &cmask))
+	if (pmu_sbi_get_ctrinfo(num_counters, cmask))
 		goto out_free;
 
 	ret = pmu_sbi_setup_irqs(pmu, pdev);
@@ -1505,7 +1541,7 @@ static int pmu_sbi_device_probe(struct platform_device *pdev)
 	}
 
 	pmu->pmu.attr_groups = riscv_pmu_attr_groups;
-	pmu->cmask = cmask;
+	bitmap_copy(pmu->cmask, cmask, RISCV_MAX_COUNTERS);
 	pmu->ctr_start = pmu_sbi_ctr_start;
 	pmu->ctr_stop = pmu_sbi_ctr_stop;
 	pmu->event_map = pmu_sbi_event_map;

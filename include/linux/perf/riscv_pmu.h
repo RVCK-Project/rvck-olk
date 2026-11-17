@@ -58,7 +58,7 @@ struct riscv_pmu {
 	irqreturn_t	(*handle_irq)(int irq_num, void *dev);
 	struct sse_event *sse_evt;
 
-	unsigned long	cmask;
+	DECLARE_BITMAP(cmask, RISCV_MAX_COUNTERS);
 	u64		(*ctr_read)(struct perf_event *event);
 	int		(*ctr_get_idx)(struct perf_event *event);
 	int		(*ctr_get_width)(int idx);
