@@ -25,6 +25,7 @@ static inline bool hwprobe_key_is_bitmask(__s64 key)
 	case RISCV_HWPROBE_KEY_VENDOR_EXT_THEAD_0:
 	case RISCV_HWPROBE_KEY_VENDOR_EXT_MIPS_0:
 	case RISCV_HWPROBE_KEY_VENDOR_EXT_SIFIVE_0:
+	case RISCV_HWPROBE_KEY_VENDOR_EXT_LEAPRISE_0:
 		return true;
 	}
 
