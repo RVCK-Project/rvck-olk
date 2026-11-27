@@ -8276,6 +8276,17 @@ a vCPU is loaded, KVM writes the mapping between the vDomain and the pDomain
 into the VTLBID(n). If guest enabled TLBID, hardware will convert vDomain id to
 pDomain id for TLBI broadcast.
 
+7.43 KVM_CAP_RISCV_MP_STATE_RESET
+---------------------------------
+
+:Architectures: riscv
+:Type: VM
+:Parameters: None
+:Returns: 0 on success, -EINVAL if arg[0] is not zero
+
+When this capability is enabled, KVM resets the VCPU when setting
+MP_STATE_INIT_RECEIVED through IOCTL.  The original MP_STATE is preserved.
+
 8. Other capabilities.
 ======================
 

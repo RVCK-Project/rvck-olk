@@ -1299,6 +1299,7 @@ struct kvm_ppc_resize_hpt {
 #define KVM_CAP_PRE_FAULT_MEMORY 236
 
 #define KVM_CAP_ARM_WRITABLE_IMP_ID_REGS 239
+#define KVM_CAP_RISCV_MP_STATE_RESET 242
 
 #define KVM_CAP_ARM_RME 300
 
